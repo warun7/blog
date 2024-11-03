@@ -208,10 +208,21 @@ const Terminal = ({ posts }) => {
   const handleTerminalClick = () => {
     if (isMobile) {
       setShowMobileInput(true);
-      mobileInputRef.current?.focus();
+      setTimeout(() => {
+        mobileInputRef.current?.focus();
+      }, 100);
     } else {
       terminalRef.current?.focus();
     }
+  };
+
+  // Handle mobile input submission
+  const handleMobileSubmit = (e) => {
+    e.preventDefault();
+    handleCommand(currentCommand);
+    setCurrentCommand('');
+    // Keep the input visible and focused after submission
+    mobileInputRef.current?.focus();
   };
 
   return (
@@ -267,8 +278,7 @@ const Terminal = ({ posts }) => {
           </div>
         </div>
 
-        {/* Mobile input field */}
-        {isMobile && showMobileInput && (
+        {isMobile && (
           <div className="mobile-input-container">
             <input
               ref={mobileInputRef}
@@ -277,14 +287,15 @@ const Terminal = ({ posts }) => {
               value={currentCommand}
               onChange={(e) => setCurrentCommand(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleCommand(currentCommand);
-                  setShowMobileInput(false);
+                if (e.key === 'Enter') {
+                  handleMobileSubmit(e);
                 }
               }}
               placeholder="Type command..."
               autoComplete="off"
               autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
             />
           </div>
         )}
