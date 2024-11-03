@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./Terminal.css";
+import DOMPurify from "dompurify";
+import LoadingState from "./LoadingState";
 
 const Terminal = ({ posts }) => {
   const [commandHistory, setCommandHistory] = useState([]);
@@ -12,6 +14,8 @@ const Terminal = ({ posts }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileInput, setShowMobileInput] = useState(false);
   const mobileInputRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -38,7 +42,7 @@ const Terminal = ({ posts }) => {
             <span className="date">[{latestPost.date}]</span>
             <span className="tags">{latestPost.tags.join(", ")}</span>
           </div>
-          <p>{latestPost.content}</p>
+          <p>{DOMPurify.sanitize(latestPost.content)}</p>
         </div>
       );
       setCommandHistory([
@@ -50,6 +54,18 @@ const Terminal = ({ posts }) => {
     }
   }, [posts]);
 
+  useEffect(() => {
+    if (posts) {
+      setIsLoading(false);
+    }
+  }, [posts]);
+
+  useEffect(() => {
+    if (!posts && !isLoading) {
+      setError('Failed to load posts');
+    }
+  }, [posts, isLoading]);
+
   const clearTerminal = () => {
     setCommandHistory([]);
     setShowSystemInfo(false);
@@ -58,8 +74,15 @@ const Terminal = ({ posts }) => {
     setHistoryIndex(-1);
   };
 
+  const sanitizeCommand = (cmd) => {
+    return cmd
+      .replace(/[^a-zA-Z0-9\s._-]/g, "")
+      .trim()
+      .toLowerCase();
+  };
+
   const handleCommand = (command) => {
-    const cmd = command.toLowerCase().trim();
+    const cmd = sanitizeCommand(command);
     let output = "";
 
     if (cmd !== "") {
@@ -140,7 +163,7 @@ const Terminal = ({ posts }) => {
                   <span className="date">[{post.date}]</span>
                   <span className="tags">{post.tags.join(", ")}</span>
                 </div>
-                <p>{post.content}</p>
+                <p>{DOMPurify.sanitize(post.content)}</p>
               </div>
             );
           } else {
@@ -150,9 +173,12 @@ const Terminal = ({ posts }) => {
           output = <span className="error">Command not found: {cmd}</span>;
         }
     }
-
+    const MAX_HISTORY = 50;
     if (output || cmd !== "") {
-      setCommandHistory((prev) => [...prev, { command, output }]);
+      setCommandHistory((prev) => {
+        const newHistory = [...prev, { command, output }];
+        return newHistory.slice(-MAX_HISTORY);
+      });
     }
     setCurrentCommand("");
   };
@@ -220,10 +246,53 @@ const Terminal = ({ posts }) => {
   const handleMobileSubmit = (e) => {
     e.preventDefault();
     handleCommand(currentCommand);
-    setCurrentCommand('');
+    setCurrentCommand("");
     // Keep the input visible and focused after submission
     mobileInputRef.current?.focus();
   };
+
+  // Add touch event handling
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1) {
+      handleTerminalClick();
+    }
+  };
+
+  // Update mobile input handling
+  const handleMobileInput = (e) => {
+    e.preventDefault();
+    const input = e.target.value;
+    setCurrentCommand(input);
+  };
+
+  // Add cleanup for event listeners
+  useEffect(() => {
+    const terminal = terminalRef.current;
+    
+    const cleanup = () => {
+      terminal?.removeEventListener('touchstart', handleTouchStart);
+      terminal?.removeEventListener('click', handleTerminalClick);
+    };
+    
+    if (terminal) {
+      terminal.addEventListener('touchstart', handleTouchStart);
+      terminal.addEventListener('click', handleTerminalClick);
+    }
+    
+    return cleanup;
+  }, []);
+
+  // Implement command history limit
+  const MAX_HISTORY = 50;
+  const addToHistory = (command, output) => {
+    setCommandHistory(prev => {
+      const newHistory = [...prev, { command, output }];
+      return newHistory.slice(-MAX_HISTORY);
+    });
+  };
+
+  if (isLoading) return <LoadingState />;
+  if (error) return <div className="error-message" role="alert">{error}</div>;
 
   return (
     <div className="terminal-container">
@@ -232,7 +301,10 @@ const Terminal = ({ posts }) => {
         ref={terminalRef}
         tabIndex={0}
         onClick={handleTerminalClick}
+        onTouchStart={handleTouchStart}
         onKeyDown={!isMobile ? handleKeyDown : undefined}
+        role="application"
+        aria-label="Terminal Interface"
       >
         <div className="terminal-header">
           <span className="terminal-title">[user@arch ~]$</span>
@@ -287,7 +359,7 @@ const Terminal = ({ posts }) => {
               value={currentCommand}
               onChange={(e) => setCurrentCommand(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleMobileSubmit(e);
                 }
               }}

@@ -12,7 +12,6 @@
   z-index: 1000;
   padding: 5vh 0;
   box-sizing: border-box;
-  display: flex;
   flex-direction: column;
   justify-content: center;
 }
@@ -22,11 +21,16 @@
   height: 80vh;
   background-color: rgba(0, 0, 0, 0.9);
   border: 1px solid #00ff00;
-  font-family: 'Source Code Pro', 'Fira Code', monospace;
-  color: #00ff00;
+  font-family: "Source Code Pro", "Fira Code", monospace;
+  color: #00ff33;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+
+  &:focus {
+    outline: 2px solid #00ff33;
+    outline-offset: 2px;
+  }
 }
 
 .terminal-hint {
@@ -35,7 +39,7 @@
   left: 50%;
   transform: translateX(-50%);
   color: #00aa00;
-  font-family: 'Source Code Pro', 'Fira Code', monospace;
+  font-family: "Source Code Pro", "Fira Code", monospace;
   font-size: 14px;
   text-align: center;
   text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
@@ -76,6 +80,8 @@
   font-size: 14px;
   line-height: 1.2;
   margin-bottom: 10px;
+  role: "region";
+  aria-label: "Terminal Output";
 }
 
 /* Custom scrollbar */
@@ -130,8 +136,12 @@
   word-break: break-all;
 }
 
-.user { color: #00ff00; }
-.command { color: #fff; }
+.user {
+  color: #00ff00;
+}
+.command {
+  color: #fff;
+}
 
 .post-content {
   margin: 8px 0 24px 24px;
@@ -163,13 +173,20 @@
 }
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 
 .terminal-input {
   position: absolute;
   left: -1000px;
   opacity: 0;
+
+  &:focus {
+    outline: 2px solid #00ff33;
+    outline-offset: 2px;
+  }
 }
 
 .ls-output {
@@ -195,7 +212,8 @@
 }
 
 .error {
-  color: #ff0000;
+  color: #ff4444;
+  font-weight: bold;
 }
 
 .help-output {
@@ -266,7 +284,7 @@
     border: 1px solid #00ff00;
     color: #00ff00;
     padding: 8px;
-    font-family: 'Source Code Pro', 'Fira Code', monospace;
+    font-family: "Source Code Pro", "Fira Code", monospace;
     font-size: 16px;
     border-radius: 4px;
   }
@@ -296,5 +314,20 @@
 @media screen and (max-height: 600px) {
   .terminal {
     height: 60vh;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 1em;
+  background-color: #000;
+  color: #00ff33;
+  text-decoration: none;
+
+  &:focus {
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
