@@ -122,7 +122,9 @@ const Terminal = ({ posts }) => {
         if (!showSystemInfo) {
           setShowSystemInfo(true);
         } else {
-          output = <span className="error">System info is already displayed</span>;
+          output = (
+            <span className="error">System info is already displayed</span>
+          );
         }
         break;
 
@@ -243,7 +245,6 @@ const Terminal = ({ posts }) => {
                 <span className="separator">-----------------</span>
                 <span>OS: Arch Linux x86_64</span>
                 <span>Shell: zsh 5.9</span>
-                <span>Terminal: st 0.9</span>
                 <span>Blog Posts: {posts.length}</span>
               </div>
             </div>
