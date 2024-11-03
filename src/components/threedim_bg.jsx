@@ -83,15 +83,13 @@ const ThreedimBg = () => {
         const model = gltf.scene;
         modelRef.current = model;
 
-        // Add model to the group instead of scene directly
         modelGroup.add(model);
 
         // Center and position the model
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
 
-        // Reset position and center the model
-        model.position.set(0, 0, 0); // Reset Y position to 0
+        model.position.set(0, 0, 0); // Reset Y position
         model.position.x -= center.x;
         model.position.z -= center.z;
 
@@ -125,7 +123,6 @@ const ThreedimBg = () => {
 
       const delta = clock.getDelta();
 
-      // Only rotate if user is not interacting
       if (!isUserInteracting && modelGroup) {
         modelGroup.rotation.y += 0.001;
       }
