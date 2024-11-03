@@ -1,0 +1,20 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Welcome to the Matrix Blog",
+      "date": "2024-03-14",
+      "tags": ["intro", "matrix"],
+      "content": "Welcome to my terminal-style blog. Here we discuss various topics through the lens of the digital realm...",
+      "filename": "welcome.md"
+    },
+    {
+      "id": 2,
+      "title": "Understanding the Digital Void",
+      "date": "2024-03-15",
+      "tags": ["technology", "philosophy"],
+      "content": "The digital void represents more than just empty space...",
+      "filename": "digital_void.md"
+    }
+  ]
+}
